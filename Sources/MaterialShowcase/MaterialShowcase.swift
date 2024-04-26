@@ -126,7 +126,11 @@ open class MaterialShowcase: UIView {
   
   public init() {
     // Create frame
+    #if os(visionOS)
+    let frame = CGRect(x: 0, y: 0, width: 1180.0, height:340.0)
+    #else
     let frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+    #endif
     super.init(frame: frame)
     
     configure()
@@ -304,12 +308,16 @@ extension MaterialShowcase {
   /// Returns the current showcases displayed on screen.
   /// It will return null if no showcase exists.
   public static func presentedShowcases() -> [MaterialShowcase]? {
+    #if os(visionOS)
+    return []
+    #else
     guard let window = UIApplication.shared.keyWindow else {
       return nil
     }
     return window.subviews.filter({ (view) -> Bool in
       return view is MaterialShowcase
     }) as? [MaterialShowcase]
+    #endif
   }
 }
 
@@ -319,9 +327,11 @@ extension MaterialShowcase {
   /// Initializes default view properties
   func configure() {
     backgroundColor = UIColor.clear
+    #if !os(visionOS)
     guard let window = UIApplication.shared.keyWindow else {
-      return
+    return
     }
+    #endif
     containerView = window
     setDefaultProperties()
   }
@@ -418,7 +428,11 @@ extension MaterialShowcase {
       
       
     case .full:
+      #if os(visionOS)
+      backgroundView = UIView(frame: CGRect(x: 0, y: 0, width: 1180.0,height: 840.0))
+      #else
       backgroundView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width,height: UIScreen.main.bounds.height))
+      #endif
     }
     
     
@@ -548,13 +562,17 @@ extension MaterialShowcase {
     
     if UIDevice.current.userInterfaceIdiom == .pad {
       width = backgroundView.frame.width - 2 * xPosition
-      
+      #if os(visionOS)
+      let fixWidth = 1180.0
+      #else
+      let fixWidth =  UIScreen.main.bounds.width
+      #endif
       if backgroundView.frame.origin.x < 0 {
         xPosition = abs(backgroundView.frame.origin.x) + xPosition
       } else if (backgroundView.frame.origin.x + backgroundView.frame.size.width >
-        UIScreen.main.bounds.width) {
+                 fixWidth) {
         xPosition = 2 * LABEL_MARGIN
-        width = backgroundView.frame.size.width - (backgroundView.frame.maxX - UIScreen.main.bounds.width) - xPosition - LABEL_MARGIN
+        width = backgroundView.frame.size.width - (backgroundView.frame.maxX - fixWidth) - xPosition - LABEL_MARGIN
       }
       if xPosition + width > backgroundView.frame.size.width {
         width = backgroundView.frame.size.width - xPosition - (LABEL_MARGIN * 2)
@@ -573,11 +591,16 @@ extension MaterialShowcase {
         yPosition = (backgroundView.frame.size.height/2) - TEXT_CENTER_OFFSET - instructionView.frame.height
       }
     } else {
+      #if os(visionOS)
+      let fixWidth = 1180.0
+      #else
+      let fixWidth =  UIScreen.main.bounds.width
+      #endif
       width = containerView.frame.size.width - (xPosition*2)
       if backgroundView.frame.center.x - targetHolderRadius < 0 {
         width = width - abs(backgroundView.frame.origin.x)
       } else if (backgroundView.frame.center.x + targetHolderRadius >
-        UIScreen.main.bounds.width) {
+                 fixWidth) {
         width = width - abs(backgroundView.frame.origin.x)
         xPosition = xPosition + abs(backgroundView.frame.origin.x)
       }

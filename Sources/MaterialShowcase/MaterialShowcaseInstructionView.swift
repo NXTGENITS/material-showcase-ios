@@ -35,7 +35,12 @@ public class MaterialShowcaseInstructionView: UIView {
   
   public init() {
     // Create frame
-    let frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 0)
+    #if os(visionOS)
+    let width = 1180.0
+    #else
+    let width = UIScreen.main.bounds.width
+    #endif
+    let frame = CGRect(x: 0, y: 0, width: width, height: 0)
     super.init(frame: frame)
     
     configure()
